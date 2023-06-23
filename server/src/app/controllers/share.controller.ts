@@ -1,15 +1,17 @@
 import { Request, Response } from "express";
-import logger from "../logger";
-import { } from 'express'
-import shareService from "../service/share.service";
+import { ref } from "firebase/storage";
+import storage from "../config/storage";
+import ShareService from "../service/share.service";
 class ShareController {
-    // private service;
+    protected static service: ShareService;
     constructor() {
-        // this.service = new shareService();
+        ShareController.service = new ShareService();
     }
-
     upload(req: Request, res: Response) {
-        return res.json('/upload')
+        // form upload with multer
+        const storageref = ref(storage, `fq-share/${}`);
+        console.log(req.file?.buffer)
+        return res.json({ 'success': true })
     }
 
     download(req: Request, res: Response) {

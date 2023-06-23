@@ -11,7 +11,7 @@ class ShareService implements ShareInterfaces {
 
     async store(): Promise<void> {
         try {
-            this.ShareModel.create({
+            await this.ShareModel.create({
                 data: {
                     FileName: "test"
                 }
@@ -22,4 +22,4 @@ class ShareService implements ShareInterfaces {
     }
 }
 
-export default new ShareService()
+export default ShareService
