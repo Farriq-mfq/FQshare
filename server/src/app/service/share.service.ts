@@ -35,7 +35,7 @@ class ShareService implements ShareInterfaces {
                 return await this.ShareModel.create({
                     data: {
                         downloadUrl: downloadURl,
-                        FileName: file?.originalname!,
+                        FileName: fileName,
                         Password: input.password ? (await Bcrypt.hash(input.password, 10)).toString() : null
                     }
                 })
