@@ -1,17 +1,20 @@
 import { Request, Response } from "express";
-import { ref } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import storage from "../config/storage";
 import ShareService from "../service/share.service";
+import CryptoJS from "crypto-js";
 class ShareController {
     protected static service: ShareService;
     constructor() {
         ShareController.service = new ShareService();
     }
-    upload(req: Request, res: Response) {
-        // form upload with multer
-        const storageref = ref(storage, `fq-share/${}`);
-        console.log(req.file?.buffer)
-        return res.json({ 'success': true })
+
+    index(req: Request, res: Response) {
+        return res.send('ok');
+    }
+
+    async upload(req: Request, res: Response) {
+        return await ShareController.service.store(req, res)
     }
 
     download(req: Request, res: Response) {

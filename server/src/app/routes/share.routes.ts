@@ -1,13 +1,12 @@
 import express from 'express'
-import multer from 'multer'
 import shareController from '../controllers/share.controller'
+import { uploadMiddleware } from '../middlewares'
 
 const ShareRoutes = express.Router()
-const upload = multer({
-    storage: multer.memoryStorage()
-})
 
-ShareRoutes.post('/upload', upload.single('file'), shareController.upload)
+
+ShareRoutes.get('/', shareController.index);
+ShareRoutes.post('/upload', uploadMiddleware, shareController.upload)
 ShareRoutes.get('/download/:id', shareController.download)
 
 
