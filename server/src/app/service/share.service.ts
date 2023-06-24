@@ -1,9 +1,12 @@
+import { Share } from "@prisma/client";
+import Bcrypt from 'bcryptjs';
+import CryptoJS from "crypto-js";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { prisma } from "../config";
-import { ShareInterfaces } from "../interfaces";
 import storage from "../config/storage";
-import { Request, Response } from "express";
-import CryptoJS from "crypto-js";
+import ResponseError from "../errors/response.error";
+import { ShareInterfaces } from "../interfaces";
+import { ShareInput } from "../web/input/share.input";
 class ShareService implements ShareInterfaces {
     private ShareModel: typeof prisma.share;
 
@@ -11,40 +14,37 @@ class ShareService implements ShareInterfaces {
         this.ShareModel = prisma.share
     }
 
-
-    async store(req: Request, res: Response): Promise<Response> {
+    async find(id: string): Promise<Share | null> {
         try {
-            const ext = req.file?.originalname.split('.').pop()
+            const share = await this.ShareModel.findUnique({ where: { id } })
+            return share;
+        } catch (err) {
+            throw new ResponseError('internal server error', 500)
+        }
+    }
+
+
+    async store(input: ShareInput, file: Express.Multer.File): Promise<Share> {
+        try {
+            const ext = file?.originalname.split('.').pop()
             const fileName = `${CryptoJS.SHA1(`${new Date().getTime().toString()}`).toString()}.${ext}`
             const storageref = ref(storage, `fq-share/${fileName}`);
-            const upload = await uploadBytes(storageref, req.file?.buffer!)
+            const upload = await uploadBytes(storageref, file?.buffer!)
             if (upload) {
                 const downloadURl = await getDownloadURL(storageref)
-
-                const create = await this.ShareModel.create({
+                return await this.ShareModel.create({
                     data: {
                         downloadUrl: downloadURl,
-                        FileName: req.file?.originalname!,
+                        FileName: file?.originalname!,
+                        Password: input.password ? (await Bcrypt.hash(input.password, 10)).toString() : null
                     }
                 })
 
-                return res.json({
-                    message: 'ok',
-                    status: 200,
-                })
             } else {
-                return res.status(400).json({
-                    message: 'error on upload',
-                    status: 400
-                })
+                throw new ResponseError('error on upload', 400)
             }
         } catch (err) {
-            console.log(err)
-            return res.status(500).json({
-                message: 'internal server error',
-                status: 500,
-                error: err
-            }).end()
+            throw new ResponseError('internal server error', 500)
         }
     }
 }

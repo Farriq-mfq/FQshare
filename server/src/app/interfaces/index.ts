@@ -1,3 +1,3 @@
 import ShareInterfaces from "./share.interfaces";
-import DBInterface from "./db.interface";
-export { ShareInterfaces ,DBInterface}
+import { ResponseErrorInterface, ResponseInterface } from "./response.interfaces";
+export { ShareInterfaces, ResponseInterface, ResponseErrorInterface }
