@@ -36,6 +36,7 @@ class ShareService implements ShareInterfaces {
                     data: {
                         downloadUrl: downloadURl,
                         FileName: fileName,
+                        originalFileName: file.originalname,
                         Password: input.password ? (await Bcrypt.hash(input.password, 10)).toString() : null
                     }
                 })
