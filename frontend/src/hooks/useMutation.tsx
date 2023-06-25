@@ -1,35 +1,35 @@
-import { useEffect, useState } from "react";
-import { api } from "../modules/api.module";
 import { AxiosError, AxiosRequestConfig } from "axios";
-import { useMemo } from "react";
-interface IuseQuery {
+import { useCallback, useState } from "react";
+import { api } from "../modules/api.module";
+interface IuseMutation {
   path: string;
   config?: AxiosRequestConfig;
 }
 
-interface useQueryResponse {
+interface useMutationResponse {
   isLoading: boolean;
   data: any;
   error: any;
-  refetch(): Promise<void>;
+  handleSubmit(data: any): Promise<void>;
 }
 
-interface callbackQuery<T> {
+interface callbackMutation<T> {
   onSuccess: (data: T) => void;
   onError: (error: any) => void;
 }
-const useQuery = <T extends unknown>(
-  { path, config }: IuseQuery,
-  { onSuccess, onError }: Partial<callbackQuery<T>>
-): useQueryResponse => {
+
+const useMutation = <T extends unknown>(
+  { path, config }: IuseMutation,
+  { onSuccess, onError }: Partial<callbackMutation<T>>
+): useMutationResponse => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [data, setData] = useState<T | null>(null);
+  const [data, setData] = useState<any>({});
   const [error, setError] = useState<any>({});
 
-  const fetchData = async () => {
+  const handleSubmit = useCallback(async (data: any) => {
     setIsLoading(true);
     try {
-      const response = await api.get<T>(path, config);
+      const response = await api.post<T>(path, data, config);
       setData(response.data);
       if (onSuccess != undefined) {
         onSuccess(response.data);
@@ -44,17 +44,14 @@ const useQuery = <T extends unknown>(
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const refetch = async () => {
-    await fetchData();
-  };
-
-  useEffect(() => {
-    fetchData();
   }, []);
 
-  return { data, isLoading, error, refetch };
+  return {
+    data,
+    isLoading,
+    error,
+    handleSubmit,
+  };
 };
 
-export default useQuery;
+export default useMutation;

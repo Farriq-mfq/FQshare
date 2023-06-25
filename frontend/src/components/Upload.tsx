@@ -1,27 +1,99 @@
 import {
   Button,
   Flex,
-  HStack,
   Input,
   VStack,
   useClipboard,
   useToast,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { api } from "../modules/api.module";
+import useMutation from "../hooks/useMutation";
 import Dropzone from "./Dropzone";
 import ListFile from "./ListFile";
 type Props = {};
+
+interface uploadResponse {
+  id: string;
+}
 
 export default function Upload({}: Props) {
   const toast = useToast();
   const [file, setFile] = useState<File | null>(null);
   const [password, setPassword] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [percent, setPercent] = useState<number>(0);
   const [result, setResult] = useState<string | null>(null);
+  const { handleSubmit, isLoading } = useMutation<uploadResponse>(
+    {
+      path: "/share/upload",
+      config: {
+        headers: { "Content-Type": "multipart/form-data" },
+        onUploadProgress: (progressEvent) => {
+          const percent = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total!
+          );
+          setPercent(percent);
+        },
+      },
+    },
+    {
+      onSuccess(data: uploadResponse) {
+        setPassword(null);
+        setFile(null);
+        setPercent(0);
+        toast({
+          status: "success",
+          title: "Success",
+          description: "Cool successfully linked",
+          position: "top-right",
+        });
+        setResult(`${window.location.href}${data.id}`);
+      },
+      onError(error: {
+        status: number;
+        error: any;
+        context: string | undefined;
+      }) {
+        if (error.context) {
+          switch (error.context) {
+            case "FILE_VALIDATION":
+              toast({
+                status: "error",
+                title: "Error",
+                description: error.error,
+                position: "top-right",
+              });
+              break;
+            case "FILE_TO_LARGE":
+              toast({
+                status: "error",
+                title: "Error",
+                description: error.error,
+                position: "top-right",
+              });
+              break;
+            case "VALIDATION":
+              toast({
+                status: "error",
+                title: "Error",
+                description: error.error[0]["password"],
+                position: "top-right",
+              });
+              break;
+            default:
+              toast({
+                status: "error",
+                title: "Error",
+                description: JSON.stringify(error.error),
+                position: "top-right",
+              });
+              break;
+          }
+        }
+      },
+    }
+  );
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formdata = new FormData();
     if (password != null) {
@@ -30,87 +102,16 @@ export default function Upload({}: Props) {
     if (file != null) {
       formdata.append("file", file);
     }
-
-    setLoading(true);
-    setTimeout(() => {
-      api
-        .post<{ status: number; id: string }>("/share/upload", formdata, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          onUploadProgress: (progressEvent) => {
-            const percent = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total!
-            );
-            setPercent(percent);
-          },
-        })
-        .then((response) => {
-          setPassword(null);
-          setFile(null);
-          setPercent(0);
-          toast({
-            status: "success",
-            title: "Success",
-            description: "Cool successfully linked",
-            position: "top-right",
-          });
-          setResult(`${window.location.href}${response.data.id}`);
-        })
-        .catch((err) => {
-          const error = err.response.data as {
-            status: number;
-            error: any;
-            context: string | undefined;
-          };
-          if (error.context) {
-            switch (error.context) {
-              case "FILE_VALIDATION":
-                toast({
-                  status: "error",
-                  title: "Error",
-                  description: error.error,
-                  position: "top-right",
-                });
-                break;
-              case "FILE_TO_LARGE":
-                toast({
-                  status: "error",
-                  title: "Error",
-                  description: error.error,
-                  position: "top-right",
-                });
-                break;
-              case "VALIDATION":
-                toast({
-                  status: "error",
-                  title: "Error",
-                  description: error.error[0]["password"],
-                  position: "top-right",
-                });
-                break;
-              default:
-                toast({
-                  status: "error",
-                  title: "Error",
-                  description: JSON.stringify(error.error),
-                  position: "top-right",
-                });
-                break;
-            }
-          }
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }, 500);
+    await handleSubmit(formdata);
   };
 
   const onDeleteFile = () => {
     setFile(null);
   };
 
-  const { onCopy, value, setValue, hasCopied } = useClipboard(result!);
+  const { onCopy, value, setValue, hasCopied } = useClipboard(
+    result != null ? result : ""
+  );
 
   return (
     <>
@@ -127,12 +128,12 @@ export default function Upload({}: Props) {
                 setValue(e.target.value);
               }}
             />
-            <Button colorScheme="teal" onClick={onCopy}>
+            <Button colorScheme="blue" onClick={onCopy}>
               {hasCopied ? "Copied!" : "Copy"}
             </Button>
           </Flex>
           <Button
-            colorScheme="teal"
+            colorScheme="blue"
             onClick={(e) => {
               e.preventDefault();
               setResult(null);
@@ -142,15 +143,19 @@ export default function Upload({}: Props) {
           </Button>
         </VStack>
       ) : (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={onSubmit}>
           <VStack spacing={"4"} alignItems={"start"}>
             {file ? (
-              <ListFile file={file} onDelete={onDeleteFile} loading={loading} />
+              <ListFile
+                file={file}
+                onDelete={onDeleteFile}
+                loading={isLoading}
+              />
             ) : (
               <Dropzone setFile={setFile} />
             )}
             <Input
-              disabled={loading}
+              disabled={isLoading}
               type="password"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 setPassword(e.target.value);
@@ -158,10 +163,10 @@ export default function Upload({}: Props) {
               placeholder="your file password"
             />
             <Button
-              isLoading={loading}
+              isLoading={isLoading}
               loadingText={`${percent}%`}
               type="submit"
-              colorScheme="teal"
+              colorScheme="blue"
             >
               Submit
             </Button>
