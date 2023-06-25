@@ -58,12 +58,47 @@ export default function Upload({}: Props) {
           setResult(`${window.location.href}${response.data.id}`);
         })
         .catch((err) => {
-          toast({
-            status: "error",
-            title: "Error",
-            description: "Somthing error with your request",
-            position: "top-right",
-          });
+          const error = err.response.data as {
+            status: number;
+            error: any;
+            context: string | undefined;
+          };
+          if (error.context) {
+            switch (error.context) {
+              case "FILE_VALIDATION":
+                toast({
+                  status: "error",
+                  title: "Error",
+                  description: error.error,
+                  position: "top-right",
+                });
+                break;
+              case "FILE_TO_LARGE":
+                toast({
+                  status: "error",
+                  title: "Error",
+                  description: error.error,
+                  position: "top-right",
+                });
+                break;
+              case "VALIDATION":
+                toast({
+                  status: "error",
+                  title: "Error",
+                  description: error.error[0]["password"],
+                  position: "top-right",
+                });
+                break;
+              default:
+                toast({
+                  status: "error",
+                  title: "Error",
+                  description: JSON.stringify(error.error),
+                  position: "top-right",
+                });
+                break;
+            }
+          }
         })
         .finally(() => {
           setLoading(false);
