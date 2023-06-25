@@ -9,6 +9,7 @@ interface ResponseInterface<T> {
 interface ResponseErrorInterface<T> {
     status: HttpStatusCode,
     error: T,
+    context?: string,
     res: Response
 }
 

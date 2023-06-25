@@ -1,2 +1,2 @@
-import SharingController from "./SharingController"
-export {SharingController}
+import ShareController from "./share.controller"
+export { ShareController }

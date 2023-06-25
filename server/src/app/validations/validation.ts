@@ -7,7 +7,7 @@ const validation = <T>(schema: Joi.ObjectSchema, request: Pick<Request, 'body'>)
     if (valid.error) {
         const errors: { [key: string]: string }[] = []
         valid.error.details.map(err => errors.push({ [err.path[0]]: err.message }))
-        throw new ResponseError(JSON.stringify(errors), HttpStatusCode.BAD_REQUEST_400)
+        throw new ResponseError(JSON.stringify(errors), HttpStatusCode.BAD_REQUEST_400, "VALIDATION")
     }
 
     return valid.value as T

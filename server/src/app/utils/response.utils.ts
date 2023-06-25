@@ -5,8 +5,8 @@ const ResponseOk = <T extends {}>({ status, data, res }: ResponseInterface<T>): 
     return res.status(status).json({ status: status, ...data }).end()
 }
 
-const ResponseHttpError = <T extends {}>({ status, error, res }: ResponseErrorInterface<T>): Response => {
-    return res.status(status).json({ status: status, ...error }).end()
+const ResponseHttpError = <T extends {}>({ status, error, res, context }: ResponseErrorInterface<T>): Response => {
+    return res.status(status).json({ status: status, ...error, context }).end()
 }
 
 export {

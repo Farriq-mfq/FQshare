@@ -19,7 +19,7 @@ class ShareService implements ShareInterfaces {
             const share = await this.ShareModel.findUnique({ where: { id } })
             return share;
         } catch (err) {
-            throw new ResponseError('internal server error', 500)
+            throw new ResponseError('internal server error', 500,"INTERNAL_SERVER_ERROR")
         }
     }
 
@@ -37,15 +37,16 @@ class ShareService implements ShareInterfaces {
                         downloadUrl: downloadURl,
                         FileName: fileName,
                         originalFileName: file.originalname,
+                        fileSize: file.size,
                         Password: input.password ? (await Bcrypt.hash(input.password, 10)).toString() : null
                     }
                 })
 
             } else {
-                throw new ResponseError('error on upload', 400)
+                throw new ResponseError('error on upload', 400, "UPLOAD_ERROR")
             }
         } catch (err) {
-            throw new ResponseError('internal server error', 500)
+            throw new ResponseError('internal server error', 500, 'INTERNAL_SERVER_ERROR')
         }
     }
 }

@@ -13,7 +13,7 @@ const uploadMiddleware = (req: Request, res: Response, next: NextFunction) => {
 
     upload(req, res, function (err) {
         if (err instanceof MulterError) {
-            return ResponseHttpError({ status: HttpStatusCode.BAD_REQUEST_400, error: { error: err.message }, res })
+            return ResponseHttpError({ status: HttpStatusCode.BAD_REQUEST_400, error: { error: err.message }, context: "FILE_TO_LARGE", res })
         }
         next()
     })

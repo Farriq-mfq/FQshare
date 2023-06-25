@@ -1,7 +1,6 @@
 import { Share } from "@prisma/client";
 import Bcrypt from 'bcryptjs';
 import { Request, Response } from "express";
-import { baseUrl } from "../config/baseurl";
 import HttpStatusCode from "../enums/httpcode.enum";
 import ResponseError from "../errors/response.error";
 import ShareService from "../service/share.service";
@@ -25,15 +24,15 @@ class ShareController {
                 if (compare) {
                     const objShare: Partial<Share> = share;
                     delete objShare.Password
-                    ResponseOk({ res, status: HttpStatusCode.OK_200, data: { objShare } })
+                    return ResponseOk({ res, status: HttpStatusCode.OK_200, data: { objShare } })
                 } else {
-                    ResponseHttpError({ error: { status: 'Wrong password' }, status: HttpStatusCode.UNAUTHORIZED_401, res })
+                    return ResponseHttpError({ error: { status: 'Wrong password' }, status: HttpStatusCode.UNAUTHORIZED_401, context: "UNAUTHORIZED", res })
                 }
             }
-            ResponseOk({ res, status: HttpStatusCode.OK_200, data: { share } })
+            return ResponseOk({ res, status: HttpStatusCode.OK_200, data: { share } })
         } catch (err) {
             if (err instanceof ResponseError) {
-                ResponseHttpError({ status: err.status, error: { error: JSON.parse(err.message) }, res });
+                return ResponseHttpError({ status: err.status, error: { error: JSON.parse(err.message) }, context: err.context, res });
             }
         }
     }
@@ -42,17 +41,17 @@ class ShareController {
         try {
             const input = validation<ShareInput>(ShareValidation, req.body)
             if (!req.file) {
-                return ResponseHttpError({ status: HttpStatusCode.BAD_REQUEST_400, error: { error: "file does'nt exist" }, res })
+                return ResponseHttpError({ status: HttpStatusCode.BAD_REQUEST_400, error: { error: "please select your file" }, res, context: "FILE_VALIDATION" })
             }
             const store: Share = await ShareController.service.store(input, req.file!)
             if (store) {
-                ResponseOk<{ url: string }>({ res, status: HttpStatusCode.OK_200, data: { url: `${baseUrl()}/share/${store.id}` } })
+                return ResponseOk<{ id: string }>({ res, status: HttpStatusCode.OK_200, data: { id: store.id } })
             } else {
-                throw new ResponseError(`something error`, HttpStatusCode.BAD_REQUEST_400)
+                throw new ResponseError('something error', HttpStatusCode.BAD_REQUEST_400)
             }
         } catch (err) {
             if (err instanceof ResponseError) {
-                return ResponseHttpError({ status: err.status, error: { error: JSON.parse(err.message) }, res });
+                return ResponseHttpError({ status: err.status, error: { error: JSON.parse(err.message) }, context: err.context, res });
             }
         }
     }
