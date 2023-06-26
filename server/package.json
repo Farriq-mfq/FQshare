@@ -4,7 +4,9 @@
   "description": "",
   "main": "build/main.js",
   "scripts": {
-    "dev": "nodemon --exec ts-node src/main.ts"
+    "dev": "nodemon --exec ts-node src/main.ts",
+    "build": "rimraf build && tsc",
+    "start": "npm run build && node ./build/main.js"
   },
   "author": "farriqmfq",
   "license": "ISC",

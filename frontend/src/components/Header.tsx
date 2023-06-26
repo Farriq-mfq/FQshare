@@ -12,7 +12,7 @@ const Header = () => {
       display={"flex"}
       alignItems={"center"}
     >
-      <Container maxW={"8xl"} display={'flex'} justifyContent={'space-between'}>
+      <Container maxW={"8xl"} display={"flex"} justifyContent={"space-between"}>
         <Text
           bgGradient="linear(to-l, #7928CA, #FF0080)"
           bgClip="text"
@@ -21,7 +21,15 @@ const Header = () => {
         >
           Welcome to Fqshare
         </Text>
-        <Button leftIcon={<AiFillGithub />} variant={'outline'}>Github</Button>
+        <Button
+          as={"a"}
+          href="https://github.com/Farriq-mfq/FQshare"
+          target="_blank"
+          leftIcon={<AiFillGithub />}
+          variant={"outline"}
+        >
+          Github
+        </Button>
       </Container>
     </Box>
   );
