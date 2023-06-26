@@ -15,7 +15,7 @@ model Share {
   FileName         String
   originalFileName String
   downloadUrl      String
-  fileSize         BigInt
+  fileSize         String
   Password         String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @default(now())

@@ -1,7 +1,6 @@
+import { AxiosError, AxiosRequestConfig } from "axios";
 import { useEffect, useState } from "react";
 import { api } from "../modules/api.module";
-import { AxiosError, AxiosRequestConfig } from "axios";
-import { useMemo } from "react";
 interface IuseQuery {
   path: string;
   config?: AxiosRequestConfig;

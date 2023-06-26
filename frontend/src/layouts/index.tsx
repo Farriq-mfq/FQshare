@@ -7,7 +7,7 @@ interface ILayout {
 const Layout: React.FC<ILayout> = ({ children }) => {
   return (
     <>
-      {/* <Header /> */}
+      <Header />
       {children}
     </>
   );

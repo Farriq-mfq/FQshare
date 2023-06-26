@@ -158,9 +158,13 @@ export default function Upload({}: Props) {
               disabled={isLoading}
               type="password"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setPassword(e.target.value);
+                if (e.target.value.length) {
+                  setPassword(e.target.value);
+                } else {
+                  setPassword(null);
+                }
               }}
-              placeholder="your file password"
+              placeholder="Your file password"
             />
             <Button
               isLoading={isLoading}

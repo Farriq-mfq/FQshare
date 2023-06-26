@@ -6,6 +6,7 @@ const ShareRoutes = express.Router()
 
 
 ShareRoutes.get('/:id', shareController.index);
+ShareRoutes.post('/download/:id', shareController.download)
 ShareRoutes.post('/upload', uploadMiddleware, shareController.upload)
 
 

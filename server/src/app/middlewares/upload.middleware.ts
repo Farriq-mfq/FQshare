@@ -7,7 +7,7 @@ const uploadMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const upload = multer({
         storage: multer.memoryStorage(),
         limits: {
-            fileSize: 1024 * 1024 * 0.5
+            fileSize: 1024 * 1024 * 25
         },
     }).single('file')
 

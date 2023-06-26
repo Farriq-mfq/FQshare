@@ -1,8 +1,8 @@
-import { Box, Center, Text, keyframes } from "@chakra-ui/react";
+import { Box, Center, keyframes } from "@chakra-ui/react";
+import { motion } from "framer-motion";
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { MdFileUpload } from "react-icons/md";
-import { motion } from "framer-motion";
 type Props = {
   setFile: React.Dispatch<React.SetStateAction<File | null>>;
 };
@@ -67,6 +67,7 @@ export default function Dropzone({ setFile }: Props) {
             justifyContent={"center"}
             alignItems={"center"}
             color={"blue.500"}
+            position="relative"
           >
             <MdFileUpload size="34" />
           </Box>

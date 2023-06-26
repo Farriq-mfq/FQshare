@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { RouterProvider } from "react-router-dom";
 import Layout from "./layouts";
 import router from "./router";
+import { Helmet } from "react-helmet";
 interface IApp {}
 const App: React.FC<IApp> = () => {
   const [mounted, setMounted] = useState<boolean>(false);
@@ -12,9 +13,15 @@ const App: React.FC<IApp> = () => {
     return null;
   }
   return (
-    <Layout>
-      <RouterProvider router={router} />
-    </Layout>
+    <>
+      <Helmet>
+        <title>Fqshare - Make it easy</title>
+        <meta name="description" content="Fqshare application" />
+      </Helmet>
+      <Layout>
+        <RouterProvider router={router} />
+      </Layout>
+    </>
   );
 };
 
